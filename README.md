@@ -1,2 +1,2 @@
 # MATLAB
-MATLAB code that I am using the models
+MATLAB code that I am using for the models
