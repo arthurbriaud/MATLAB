@@ -2,6 +2,11 @@ close all;
 clear;
 clc;
 
+%--------------------------------------------------------------------------------------------%
+% Biggest code divided in many parts where topography,isostasy,dynamic topography, ...
+% locations and velocities are computed.
+/%--------------------------------------------------------------------------------------------%
+
 main_dir = '/Users/Arthur workstation/Documents/SIMULATIONS/';
 
 %---------------------------
