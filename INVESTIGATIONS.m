@@ -1,4 +1,7 @@
 close all; clear; clc;
+%-------------------------------------------------------------------------------------%
+% this code is used for trench retreat and advance location according to trench velocities.
+%-------------------------------------------------------------------------------------%
 
 % load file
 load cC50cO100g6_6.txt
