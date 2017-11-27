@@ -4,8 +4,6 @@ clc;
 
 main_dir = '/Users/Arthur workstation/Documents/SIMULATIONS/';
 
-% before named WIP_coupling_decoupling.m location at : 'C:\Users\Arthur workstation\Documents\MATLABpost_pro\Worthless_scripts'
-
 %---------------------------
 % Step 
 %---------------------------
@@ -13,6 +11,7 @@ Step_init = 0;
 Step_Step = 100;
 Step_end  = 0;
 %---------------------------
+
 write = 0;
 fig = 0;
 
@@ -27,7 +26,7 @@ for i =  Step_init : Step_Step : Step_end
 disp('-------------------------');
 disp([' Plotting Step nb: ',num2str(i,'%04d')]);
 disp('-v-v-v-v-v-v-v-v-v-v-v-v-');
- cd(strcat(main_dir, 'cC50cO100g6_5'))
+ cd(strcat(main_dir, 'MODEL NAME'))
  
     [V,P,Surf,C,t] = CITCOM_reader(i,pro,1,2);
     X = C{1} .*H.*1e-3; 
@@ -41,6 +40,7 @@ disp('-v-v-v-v-v-v-v-v-v-v-v-v-');
     Rheol = V{5};
     Vx2 = Vx.^2; Vz2 = Vz.^2;  % squared   % [cm/yr]
     V_rms = sqrt(Vx2 + Vz2);    % Vrms magnitude % [cm/yr]
+    
    %%  | Topography/Stress |     
     Topo_oc = Surf{1}.*(mu_ref*k/H^2)./(roM-row)/g.*1e-3;     % [km] considering water above the oceaninc lithosphere
     Topo_cc = Surf{1}.*(mu_ref*k/H^2)./(roC-1)/g.*1e-3;       % [km] maybe consider air above the continent!
@@ -62,6 +62,7 @@ disp('-v-v-v-v-v-v-v-v-v-v-v-v-');
     cor1 = pmax + Ridge_alt;
     Topo_OP = TOPO - cor1; 
     TOPO    = TOPO - cor1;
+    
     %% | Isostatic balance and Dynamic topography |
 
     idx_comp = find(Z>=300,1,'first');  % find index for compesation depth of 300 km
@@ -71,10 +72,6 @@ disp('-v-v-v-v-v-v-v-v-v-v-v-v-');
     RH = Rheol(1:idx_comp,tr_idx+1:end);
     TC(RH~=-2) = 0; TC(RH==-2) = 1;
 
-    % subplot(311),pcolor(X(1:tr_idx),Z(1:idx_comp),TOC); shading flat; axis ij
-    % subplot(312),pcolor(X(tr_idx+1:end),Z(1:idx_comp),TC); shading flat; axis ij
-    % subplot(313),pcolor(X(tr_idx+1:end),Z(1:idx_comp),TM); shading flat; axis ij
-
     % for the oceanic side, the stress is:
 %     sigmaZZ = int(rho_mantle * g * (alfa ( T oceanic - DT))
     Soc = trapz(Z(1:idx_comp).*1e3,g.*roM.*(alfa.*(TOC-DT)));
@@ -83,14 +80,11 @@ disp('-v-v-v-v-v-v-v-v-v-v-v-v-');
     Scc = trapz(Z(1:idx_comp).*1e3,g.*(roM-roC).*TC) + ...
           trapz(Z(1:idx_comp).*1e3,g.*roM.*(alfa.*(TM-DT)));
     
-    % dynamoc topography is surface topography - isostasy 
+    % dynamic topography is surface topography - isostasy 
     TOPoc_dyn = TOPO_oc - Soc'./(roM-row)/g.*1e-3;
     TOPcc_dyn = TOPO_cc - Scc'./(roC-1)/g.*1e-3;
     TOPO_dyn  = [TOPoc_dyn;TOPcc_dyn];
-%     plot(X(1:tr_idx),TOPO_oc,'r',X(tr_idx+1:end),TOPO_cc,'k',...
-%         X(1:tr_idx),TOPoc_dyn,'r--',X(tr_idx+1:end),TOPcc_dyn,'k--',...
-%         X(1:tr_idx),Soc./(roM-row)/g.*1e-3,'r:',X(tr_idx+1:end),Scc./(roC-1)/g.*1e-3,'k:')
-%         ylabel('Km')
+
 %% Find locations 
 % Trench location
 Mu_tmp = mu(1:1,1:end);      
@@ -125,11 +119,12 @@ V_sub        = Vx_tmp2(SVP_ref);                 % subducting plate velocity [cm
 dh_surf_topo = (Topo_OP_tmp(OVPref(2)) - Topo_OP_tmp(OVPref(1)));      % [km]
 
 dX          = (x(OVPref(2)) - x(OVPref(1)));                           % [km]
-Tilt_OP     = dh_surf_topo/dX;                             % surface topograhy tilting
-Altitude_OP = mean(Topo_OP_tmp(OVP));        % surface topography up and down  ;
-TOPO_dyn_OP = mean(TOPO_dyn_tmp(OVP));          % averaged dynamic continental topography up and down; 
+Tilt_OP     = dh_surf_topo/dX;               % surface topograhy tilting, slope [-]
+Altitude_OP = mean(Topo_OP_tmp(OVP));        % surface topography up and down [km] ;
+TOPO_dyn_OP = mean(TOPO_dyn_tmp(OVP));       % averaged dynamic continental topography up and down [km]; 
 disp('TOPO_dyn_OP')
 disp(TOPO_dyn_OP)
+
  %% Define lithosphere location 
 T_refVrms = zeros(size(T));
   for m=1:numel(Z)
@@ -159,9 +154,9 @@ idx2 = find(Z>=670,1,'first'); % vertical index where Z>= 670 km
 Z_upper = Z(idx:idx2);
 Z_lower = Z(idx2:1:end);
 
-V_RMS = V_rms;         % make a copy of Vrms to not overwrite the variable, just in case you need it for other thing
-V_RMS(T_refVrms==0) = NaN; % give NaN at the the point outside the slab, in this way we can easily look for the right position
-T_refVrms(T_refVrms==0) = NaN;  % to the same for T_ref, we can use it to define the area of slab
+V_RMS = V_rms;        
+V_RMS(T_refVrms==0) = NaN; 
+T_refVrms(T_refVrms==0) = NaN;  
 V_RMS_upper = V_RMS(idx:idx2,:); % Vrms in the upper mantle
 V_RMS_lower = V_RMS(idx2:end,:);  % Vrms in the lower mantle
 
@@ -176,28 +171,23 @@ INT_lower_tmp = trapz(Z_lower.*1e3,V_RMS_lower);
 INT_upper = INT_upper_tmp.'; INT_lower = INT_lower_tmp.'; 
 
 %% Sinking velocity
-VZ = Vz;    % make a copy of Vz to not iverwrite the variable, just in case you need it for other thing
-VZ(T_refVs==0) = NaN; % give NaN at the the point outside the slab, in this way we can easily look for the right position
-T_refVs(T_refVs==0) = NaN;  % to the same for T_ref, we can use it to define the area of slab
+VZ = Vz;   
+VZ(T_refVs==0) = NaN; 
+T_refVs(T_refVs==0) = NaN;  
 VZ_upper = VZ(idx1:idx2,:);
 VZ_lower = VZ(idx2:end,:); Z_roll = Z(idx1:idx2,:);
-% % 
-% % figure(99)
-% % pcolor(X,Z_roll,VZ_upper); shading interp; colormap jet; axis ij; hold on;
+
 %% Roll Back velocity
 VX = Vx;
 VX(T_refVr==0) = NaN;
 T_refVr(T_refVr==0) = NaN;
-V_ROLL_back = VX(idx1:idx2,:);%V_roll_back = -V_roll_back; % Vx positif towards left
-% % 
-% % figure(100)
-% % pcolor(X,Z_roll,V_ROLL_back); shading interp; colormap jet; axis ij; hold on;
+V_ROLL_back = VX(idx1:idx2,:);
+
 %% calculate averaged Vrms velocities
 Vrms_upper = V_RMS_upper(isfinite(V_RMS_upper)); % retourn only the finite value
 Vrms_lower = V_RMS_lower(isfinite(V_RMS_lower));
-
-Vrms_Upper = mean(Vrms_upper);    % note: the value will be NaN if the matric is empity, 
-Vrms_Lower = mean(Vrms_lower);    %       in other words if the slab is not present at these depths
+Vrms_Upper = mean(Vrms_upper);   
+Vrms_Lower = mean(Vrms_lower);   
 
  % coupling decoupling between both layered mantle 
  
@@ -221,6 +211,7 @@ plot(t,Tilt_OP,'bv');title('Tilt'); hold on;
 drawnow
 
 %% calculate averaged sinking velocities
+
 Vsink_upper = VZ_upper(isfinite(VZ_upper)); % retourn only the finite value
 Vsink_lower = VZ_lower(isfinite(VZ_lower));
 
@@ -242,6 +233,7 @@ plot(t,Tilt_OP,'bv');title('Tilt'); hold on;
 drawnow
 
 %% calculate averaged roll back velocity
+
 V_roll_back = V_ROLL_back(isfinite(V_ROLL_back)); % retourn only the finite value
 V_roll_back = mean(V_roll_back); 
 disp('Roll back')
@@ -258,6 +250,7 @@ if (fig ==1)
 %% Vrms
 
 %% first check : Vrms only within the mantle 
+
 figure(i+1)
 subplot(221)
 pcolor(X,Z,V_rms); shading interp; colormap jet; axis ij; axis equal;
@@ -283,8 +276,8 @@ drawnow;
 
 %% Sinking speed 
 
-%% second check: Vertical velocity only for the slab
 %% Sinking speed
+
 figure(i+10000) %  Isotherm profile
 subplot(221),pcolor(X,Z,T_refVs); axis ij; shading interp;
 colormap jet; colorbar; axis equal; hold on
