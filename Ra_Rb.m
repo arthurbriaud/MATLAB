@@ -2,6 +2,9 @@ clear;
 close all;
 clc;
 
+%------------------------------------------------------------------------------------------%
+% code used for Rayleigh, mineral changes, etc... computations.
+%------------------------------------------------------------------------------------------%
 
 %% undimensionalized parameters form the simulation
 
